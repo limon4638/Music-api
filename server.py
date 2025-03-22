@@ -1,4 +1,4 @@
-from flask import Flask, request, send_file, jsonify
+from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import os
 import time
@@ -9,7 +9,7 @@ app = Flask(__name__)
 CORS(app)
 
 DOWNLOAD_FOLDER = "static"
-COOKIES_FILE = "cookies.txt"  # Make sure you have your cookies.txt
+COOKIES_FILE = "cookies.txt"
 
 if not os.path.exists(DOWNLOAD_FOLDER):
     os.makedirs(DOWNLOAD_FOLDER)
@@ -33,13 +33,12 @@ def download_audio():
     unique_filename = f"{uuid.uuid4().hex}.mp3"
     output_path = os.path.join(DOWNLOAD_FOLDER, unique_filename)
 
-    # YouTube download command
     command = [
         "yt-dlp",
         "--extract-audio",
         "--audio-format", "mp3",
         "--output", output_path,
-        "--cookies", COOKIES_FILE,  # Use cookies for restricted videos
+        "--cookies", COOKIES_FILE,
         video_url
     ]
 
@@ -48,6 +47,11 @@ def download_audio():
         return jsonify({"file_url": f"http://mirrykal.onrender.com/static/{unique_filename}", "message": "Download successful"})
     except subprocess.CalledProcessError as e:
         return jsonify({"error": str(e)}), 500
+
+# YouTube Channel API (Hardcoded)
+@app.route('/channel', methods=['GET'])
+def get_channel():
+    return jsonify({"channel_link": "https://m.youtube.com/mirrykal"})
 
 @app.after_request
 def add_header(response):
